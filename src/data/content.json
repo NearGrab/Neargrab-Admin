@@ -1,0 +1,107 @@
+{
+  "app": {
+    "name": "Neargrab",
+    "panelName": "Admin Panel",
+    "version": "v2.1.0"
+  },
+  "bannerGuidelines": {
+    "recommendedSize": "1920x600 px",
+    "maxFileSize": "2MB",
+    "formats": ["JPG", "PNG", "WebP"]
+  },
+  "emptyStates": {
+    "users": "No users found matching your criteria.",
+    "products": "No products found matching your criteria.",
+    "banners": "No banners found matching your criteria."
+  },
+  "cities": ["Surat", "Navsari", "Valsad", "Vapi", "Bharuch"],
+  "roles": [
+    { "id": "customer", "label": "Customer" },
+    { "id": "shopkeeper", "label": "Shopkeeper" },
+    { "id": "super_admin", "label": "Super Admin" },
+    { "id": "admin", "label": "Admin" },
+    { "id": "support_admin", "label": "Support Admin" },
+    { "id": "content_admin", "label": "Content Admin" }
+  ],
+  "userStatuses": [
+    { "id": "active", "label": "Active" },
+    { "id": "pending", "label": "Pending" },
+    { "id": "suspended", "label": "Suspended" },
+    { "id": "deactivated", "label": "Deactivated" }
+  ],
+  "productStatuses": [
+    { "id": "active", "label": "Active" },
+    { "id": "pending_approval", "label": "Pending Approval" },
+    { "id": "flagged", "label": "Flagged" },
+    { "id": "inactive", "label": "Inactive" },
+    { "id": "deleted", "label": "Deleted" }
+  ],
+  "stockStatuses": [
+    { "id": "in_stock", "label": "In Stock" },
+    { "id": "out_of_stock", "label": "Out of Stock" }
+  ],
+  "bannerStatuses": [
+    { "id": "active", "label": "Active" },
+    { "id": "pinned", "label": "Pinned" },
+    { "id": "scheduled", "label": "Scheduled" },
+    { "id": "draft", "label": "Draft" },
+    { "id": "expired", "label": "Expired" },
+    { "id": "inactive", "label": "Inactive" }
+  ],
+  "bannerSections": [
+    { "id": "top_hero", "label": "Top Hero" },
+    { "id": "top_carousel", "label": "Top Carousel" },
+    { "id": "middle_banner", "label": "Middle Banner" },
+    { "id": "bottom_banner", "label": "Bottom Banner" }
+  ],
+  "devices": [
+    { "id": "mobile", "label": "Mobile" },
+    { "id": "desktop", "label": "Desktop" }
+  ],
+  "dashboard": {
+    "systemSummary": {
+      "activeUsers": 23458,
+      "activeShops": 6842,
+      "inStockProducts": 186324,
+      "outOfStockProducts": 60486,
+      "pendingReviews": 1842,
+      "openTickets": 234,
+      "flaggedContent": 18
+    },
+    "totals": {
+      "totalShops": 18692,
+      "totalShopsTrend": 9.8,
+      "totalReviews": 98745,
+      "totalReviewsTrend": 15.7,
+      "totalLeads": 312430,
+      "totalLeadsTrend": 18.9,
+      "newUsers": 7623,
+      "newUsersTrend": 16.3,
+      "newShops": 1284,
+      "newShopsTrend": 11.2,
+      "productsAdded": 12408,
+      "productsAddedTrend": 17.8
+    },
+    "topCities": [
+      { "city": "Surat", "leads": 42540, "percent": 100 },
+      { "city": "Navsari", "leads": 28630, "percent": 67.3 },
+      { "city": "Valsad", "leads": 18970, "percent": 44.6 },
+      { "city": "Vapi", "leads": 16210, "percent": 38.1 },
+      { "city": "Bharuch", "leads": 12430, "percent": 29.2 }
+    ],
+    "leadsBySource": [
+      { "source": "In-App Search", "percent": 45.2, "color": "#1F6E43" },
+      { "source": "Map View", "percent": 22.1, "color": "#28B463" },
+      { "source": "Shop Profile", "percent": 15.4, "color": "#F1C40F" },
+      { "source": "Category Browse", "percent": 10.3, "color": "#A9DFBF" },
+      { "source": "Others", "percent": 7.0, "color": "#E5E8E8" }
+    ],
+    "recentActivity": [
+      { "id": "act-1", "type": "shop_registered", "title": "New shop registered", "desc": "Shree Ram Kirana, Surat", "time": "2m ago", "icon": "store" },
+      { "id": "act-2", "type": "user_registered", "title": "New user registered", "desc": "Rohan Patel", "time": "5m ago", "icon": "user" },
+      { "id": "act-3", "type": "product_added", "title": "Product added", "desc": "Parle-G Biscuits - 250g", "time": "7m ago", "icon": "box" },
+      { "id": "act-4", "type": "review_submitted", "title": "New review submitted", "desc": "5.0 rating", "time": "9m ago", "icon": "star" },
+      { "id": "act-5", "type": "payout_processed", "title": "Payout processed", "desc": "₹12,450 to Om Stores", "time": "12m ago", "icon": "banknote" }
+    ]
+  }
+}

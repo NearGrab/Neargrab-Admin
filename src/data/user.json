@@ -1,0 +1,158 @@
+{
+  "users": [
+    {
+      "id": "user-001",
+      "name": "Rohan Patel",
+      "username": "rohan_patel",
+      "email": "rohan.patel21@gmail.com",
+      "phone": "+91 98765 43210",
+      "role": "customer",
+      "status": "active",
+      "city": "Surat",
+      "avatarUrl": "",
+      "verified": true,
+      "joinedAt": "2025-05-16T10:30:00+05:30"
+    },
+    {
+      "id": "user-002",
+      "name": "Shree Ram Kirana",
+      "username": "shreeram_kirana",
+      "email": "shreeramkirana@gmail.com",
+      "phone": "+91 99988 77665",
+      "role": "shopkeeper",
+      "status": "active",
+      "city": "Navsari",
+      "avatarUrl": "",
+      "verified": true,
+      "joinedAt": "2025-05-15T09:15:00+05:30"
+    },
+    {
+      "id": "user-003",
+      "name": "Mehul Desai",
+      "username": "mehul_d",
+      "email": "mehul.desai98@gmail.com",
+      "phone": "+91 90123 45678",
+      "role": "customer",
+      "status": "active",
+      "city": "Valsad",
+      "avatarUrl": "",
+      "verified": true,
+      "joinedAt": "2025-05-14T08:45:00+05:30"
+    },
+    {
+      "id": "user-004",
+      "name": "Jay Ambe General Store",
+      "username": "jayambe_store",
+      "email": "jayambestore@gmail.com",
+      "phone": "+91 97260 11223",
+      "role": "shopkeeper",
+      "status": "active",
+      "city": "Vapi",
+      "avatarUrl": "",
+      "verified": true,
+      "joinedAt": "2025-05-14T18:20:00+05:30"
+    },
+    {
+      "id": "user-005",
+      "name": "Priya Shah",
+      "username": "priya_shah",
+      "email": "priyashah7@gmail.com",
+      "phone": "+91 98791 23456",
+      "role": "customer",
+      "status": "active",
+      "city": "Bharuch",
+      "avatarUrl": "",
+      "verified": true,
+      "joinedAt": "2025-05-13T11:05:00+05:30"
+    },
+    {
+      "id": "user-006",
+      "name": "Ketan Solanki",
+      "username": "ketan_s",
+      "email": "ketan.solanki@gmail.com",
+      "phone": "+91 81234 56789",
+      "role": "shopkeeper",
+      "status": "suspended",
+      "city": "Surat",
+      "avatarUrl": "",
+      "verified": false,
+      "joinedAt": "2025-05-12T15:40:00+05:30"
+    },
+    {
+      "id": "user-007",
+      "name": "Patel Provision Store",
+      "username": "patel_provision",
+      "email": "patelprovision@gmail.com",
+      "phone": "+91 90990 88776",
+      "role": "shopkeeper",
+      "status": "active",
+      "city": "Navsari",
+      "avatarUrl": "",
+      "verified": true,
+      "joinedAt": "2025-05-12T12:30:00+05:30"
+    },
+    {
+      "id": "user-008",
+      "name": "Nisha Trivedi",
+      "username": "nisha_t",
+      "email": "nisha.trivedi@gmail.com",
+      "phone": "+91 99788 66554",
+      "role": "customer",
+      "status": "active",
+      "city": "Valsad",
+      "avatarUrl": "",
+      "verified": true,
+      "joinedAt": "2025-05-11T10:15:00+05:30"
+    },
+    {
+      "id": "user-009",
+      "name": "Mitesh Kumar",
+      "username": "mitesh_k",
+      "email": "miteshkumar@gmail.com",
+      "phone": "+91 95862 33445",
+      "role": "customer",
+      "status": "active",
+      "city": "Vapi",
+      "avatarUrl": "",
+      "verified": true,
+      "joinedAt": "2025-05-10T19:25:00+05:30"
+    },
+    {
+      "id": "user-010",
+      "name": "Harsh Grocery",
+      "username": "harsh_grocery",
+      "email": "harshgrocery@gmail.com",
+      "phone": "+91 97372 99110",
+      "role": "shopkeeper",
+      "status": "pending",
+      "city": "Bharuch",
+      "avatarUrl": "",
+      "verified": false,
+      "joinedAt": "2025-05-10T17:55:00+05:30"
+    }
+  ],
+  "admins": [
+    {
+      "id": "admin-001",
+      "name": "Admin User",
+      "email": "admin@neargrab.in",
+      "password": "admin123",
+      "role": "super_admin",
+      "status": "active",
+      "avatarInitials": "AD",
+      "permissions": ["users:manage", "products:manage", "banners:manage"]
+    }
+  ],
+  "metrics": {
+    "totalUsers": 10000,
+    "totalUsersTrend": 1.5,
+    "customers": 98542,
+    "customersTrend": 11.3,
+    "shopkeepers": 26888,
+    "shopkeepersTrend": 14.8,
+    "suspended": 542,
+    "suspendedTrend": -8.2,
+    "newThisWeek": 3248,
+    "newThisWeekTrend": 18.6
+  }
+}
