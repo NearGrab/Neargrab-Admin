@@ -1,75 +1,129 @@
-import productData from '../data/product.json';
+import apiClient from './apiClient';
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-let localProducts = [...productData.products];
-let localMetrics = { ...productData.metrics };
+function buildQueryString(params) {
+  const cleanParams = {};
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      cleanParams[key] = value;
+    }
+  }
+  return new URLSearchParams(cleanParams).toString();
+}
 
 export const productService = {
   async listProducts(filters = {}) {
-    await delay(500);
-    let filtered = [...localProducts];
-    
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      filtered = filtered.filter(p => 
-        p.name.toLowerCase().includes(q) || 
-        p.sku.toLowerCase().includes(q) ||
-        p.shopName.toLowerCase().includes(q)
-      );
-    }
-    if (filters.category && filters.category !== 'all') {
-      filtered = filtered.filter(p => p.category.toLowerCase() === filters.category.toLowerCase());
-    }
-    if (filters.status && filters.status !== 'all') {
-      filtered = filtered.filter(p => p.status === filters.status);
-    }
-    if (filters.stockStatus && filters.stockStatus !== 'all') {
-      filtered = filtered.filter(p => p.stockStatus === filters.stockStatus);
-    }
-    if (filters.city && filters.city !== 'all') {
-      filtered = filtered.filter(p => p.city === filters.city);
-    }
-    if (filters.isPinned !== undefined) {
-      filtered = filtered.filter(p => p.isPinned === filters.isPinned);
-    }
+    const queryParams = {
+      search: filters.search,
+      category: filters.category,
+      status: filters.status,
+      stockStatus: filters.stockStatus,
+      city: filters.city,
+      isPinned: filters.isPinned,
+      page: filters.page,
+      limit: filters.limit
+    };
+    const query = buildQueryString(queryParams);
+    const { data } = await apiClient.get(`/api/v1/admin/products?${query}`);
 
-    const total = filtered.length;
-    const page = filters.page || 1;
-    const limit = filters.limit || 10;
-    const start = (page - 1) * limit;
-    const paginated = filtered.slice(start, start + limit);
+    const products = (data.products || []).map(p => ({
+      id: p.id,
+      name: p.name,
+      sku: p.sku || '',
+      shopId: p.shopId,
+      shopName: p.shop?.name || '',
+      category: p.category?.name || '',
+      brand: p.brand?.name || '',
+      city: p.shop?.address?.city || '',
+      price: p.pricePaise ? p.pricePaise / 100 : 0,
+      mrp: p.mrpPaise ? p.mrpPaise / 100 : 0,
+      currency: 'INR',
+      stockStatus: p.stockStatus ? p.stockStatus.toLowerCase() : 'in_stock',
+      status: p.status ? p.status.toLowerCase() : 'active',
+      isPinned: !!p.isPinned,
+      isFlagged: !!p.isFlagged,
+      imageUrl: p.images?.[0]?.media?.url || '',
+      addedAt: p.createdAt
+    }));
 
-    return { data: paginated, total };
+    return { data: products, total: data.meta?.total || products.length };
   },
 
   async updateProduct(productId, patch) {
-    await delay(400);
-    const index = localProducts.findIndex(p => p.id === productId);
-    if (index === -1) throw new Error('Product not found');
-    
-    localProducts[index] = { ...localProducts[index], ...patch };
-    return { success: true, product: localProducts[index] };
+    const backendPatch = {};
+    if (patch.status) {
+      backendPatch.status = patch.status.toUpperCase();
+    }
+    if (patch.isFlagged !== undefined) {
+      backendPatch.isFlagged = patch.isFlagged;
+    }
+    const { data } = await apiClient.patch(`/api/v1/admin/products/${productId}`, backendPatch);
+    return { success: true, product: data };
   },
 
   async bulkUpdateProducts(productIds, patch) {
-    await delay(600);
-    localProducts = localProducts.map(p => {
-      if (productIds.includes(p.id)) {
-        return { ...p, ...patch };
-      }
-      return p;
-    });
-    return { success: true };
+    const backendPatch = { productIds };
+    if (patch.status) {
+      backendPatch.status = patch.status.toUpperCase();
+    }
+    if (patch.isFlagged !== undefined) {
+      backendPatch.isFlagged = patch.isFlagged;
+    }
+    const { data } = await apiClient.patch(`/api/v1/admin/products/bulk`, backendPatch);
+    return { success: true, ...data };
+  },
+
+  async pinProduct(productId) {
+    const { data } = await apiClient.post(`/api/v1/admin/products/${productId}/pin`);
+    return data;
+  },
+
+  async unpinProduct(productId) {
+    const { data } = await apiClient.post(`/api/v1/admin/products/${productId}/unpin`);
+    return data;
   },
 
   async getMetrics() {
-    await delay(300);
-    return localMetrics;
+    try {
+      const { data } = await apiClient.get('/api/v1/admin/dashboard');
+      const inStock = data.systemSummary?.inStockProducts || 0;
+      const outOfStock = data.systemSummary?.outOfStockProducts || 0;
+      const total = inStock + outOfStock;
+      return {
+        totalProducts: total,
+        totalProductsTrend: data.totals?.productsAddedTrend || 0,
+        inStock: inStock,
+        inStockPercent: total > 0 ? parseFloat(((inStock / total) * 100).toFixed(1)) : 0.0,
+        outOfStock: outOfStock,
+        outOfStockPercent: total > 0 ? parseFloat(((outOfStock / total) * 100).toFixed(1)) : 0.0,
+        pinned: 0,
+        shopsWithProducts: data.systemSummary?.activeShops || 0,
+        shopsWithProductsTrend: data.totals?.newShopsTrend || 0,
+        pendingApproval: 0,
+        flagged: data.systemSummary?.flaggedContent || 0
+      };
+    } catch (err) {
+      console.error('Failed to load product metrics:', err);
+      return {
+        totalProducts: 0,
+        totalProductsTrend: 0,
+        inStock: 0,
+        inStockPercent: 0,
+        outOfStock: 0,
+        outOfStockPercent: 0,
+        pinned: 0,
+        shopsWithProducts: 0,
+        shopsWithProductsTrend: 0,
+        pendingApproval: 0,
+        flagged: 0
+      };
+    }
   },
 
   async getPinnedByCity() {
-    await delay(300);
-    return productData.pinRules;
+    const { data } = await apiClient.get('/api/v1/admin/pin-rules');
+    // Map pin-rules into expected rules format if they are for both product and banner
+    // Backend returns rule list. Let's filter targetType === 'PRODUCT' if present, or return all
+    const productRules = (data || []).filter(r => r.targetType === 'PRODUCT' || !r.targetType);
+    return productRules;
   }
 };

@@ -1,5 +1,5 @@
 <template>
-  <div class="action-menu-container" @click.stop>
+  <div class="action-menu-container" @click.stop v-if="hasProductPermission">
     <button class="action-trigger" @click="toggleMenu">
       <MoreHorizontal class="icon" />
     </button>
@@ -45,10 +45,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { 
   MoreHorizontal, Edit, CheckCircle, Flag, Pin, PinOff, XCircle, Trash2 
 } from '@lucide/vue';
+import { useAdminSessionStore } from '../../../stores/adminSessionStore';
 
 const props = defineProps({
   product: Object
@@ -57,6 +58,12 @@ const props = defineProps({
 const emit = defineEmits(['action']);
 
 const isOpen = ref(false);
+const sessionStore = useAdminSessionStore();
+
+const hasProductPermission = computed(() => {
+  const role = sessionStore.state.admin?.role;
+  return ['SUPER_ADMIN', 'ADMIN', 'CONTENT_ADMIN'].includes(role);
+});
 
 const toggleMenu = () => {
   isOpen.value = !isOpen.value;

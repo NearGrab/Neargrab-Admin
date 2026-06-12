@@ -8,15 +8,14 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  const { state, initSession } = useAdminSessionStore();
-  
-  if (state.isLoading) {
-    await initSession();
+  const sessionStore = useAdminSessionStore();
+  const token = localStorage.getItem('neargrab_admin_access_token');
+
+  // Hydrate admin session on route transition if token is present
+  if (token && !sessionStore.state.isAuthenticated && !sessionStore.state.isLoading) {
+    await sessionStore.initSession();
   }
 
-  // The auth guard logic is mostly handled by the AdminLoginModal 
-  // blocking the UI when not authenticated, but we could add route-level 
-  // checking here if needed. For now, the App.vue will handle the modal overlay.
   next();
 });
 

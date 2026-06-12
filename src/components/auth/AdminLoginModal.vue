@@ -14,7 +14,7 @@
             type="email" 
             id="email" 
             v-model="email" 
-            placeholder="admin@neargrab.com" 
+            hint="admin@neargrab.in" 
             required 
             :disabled="sessionStore.state.isLoading"
           />

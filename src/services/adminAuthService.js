@@ -1,38 +1,48 @@
-import usersData from '../data/user.json';
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+import apiClient from './apiClient';
 
 export const adminAuthService = {
   async login(email, password) {
-    await delay(800); // Simulate network latency
-    const admin = usersData.admins.find(a => a.email === email && a.password === password && a.status === 'active');
+    const { data } = await apiClient.post('/api/v1/admin/auth/login', { email, password });
     
-    if (admin) {
-      // In a real app, we'd receive a token here
-      const { password, ...adminData } = admin;
-      localStorage.setItem('neargrab_admin_id', admin.id);
-      return { success: true, admin: adminData };
-    } else {
-      throw new Error('Invalid email or password.');
+    // Save tokens and user details
+    localStorage.setItem('neargrab_admin_access_token', data.accessToken);
+    if (data.refreshToken) {
+      localStorage.setItem('neargrab_admin_refresh_token', data.refreshToken);
     }
+    localStorage.setItem('neargrab_admin_user', JSON.stringify(data.user));
+    
+    return { success: true, admin: data.user };
   },
 
   async logout() {
-    await delay(300);
-    localStorage.removeItem('neargrab_admin_id');
+    try {
+      await apiClient.post('/api/v1/auth/logout');
+    } catch (err) {
+      console.error('Admin logout endpoint failed:', err);
+    } finally {
+      localStorage.removeItem('neargrab_admin_access_token');
+      localStorage.removeItem('neargrab_admin_refresh_token');
+      localStorage.removeItem('neargrab_admin_user');
+    }
     return { success: true };
   },
 
   async getCurrentAdmin() {
-    await delay(300);
-    const id = localStorage.getItem('neargrab_admin_id');
-    if (!id) return null;
-    
-    const admin = usersData.admins.find(a => a.id === id);
-    if (admin) {
-      const { password, ...adminData } = admin;
-      return adminData;
+    const token = localStorage.getItem('neargrab_admin_access_token');
+    if (!token) return null;
+
+    try {
+      // Fetch fresh admin profile from GET /api/v1/admin/me
+      const { data } = await apiClient.get('/api/v1/admin/me');
+      localStorage.setItem('neargrab_admin_user', JSON.stringify(data));
+      return data;
+    } catch (err) {
+      console.error('Failed to get current admin profile:', err);
+      // Clear token since it's invalid
+      localStorage.removeItem('neargrab_admin_access_token');
+      localStorage.removeItem('neargrab_admin_refresh_token');
+      localStorage.removeItem('neargrab_admin_user');
+      return null;
     }
-    return null;
   }
 };

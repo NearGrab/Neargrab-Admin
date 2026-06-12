@@ -1,67 +1,130 @@
-import bannerData from '../data/banner.json';
+import apiClient from './apiClient';
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+function buildQueryString(params) {
+  const cleanParams = {};
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      cleanParams[key] = value;
+    }
+  }
+  return new URLSearchParams(cleanParams).toString();
+}
 
-let localBanners = [...bannerData.banners];
-let localMetrics = { ...bannerData.metrics };
+function normalizeBanner(b) {
+  return {
+    id: b.id,
+    title: b.title,
+    shopId: b.shopId,
+    shopName: b.shop?.name || '',
+    city: b.city,
+    section: b.section ? b.section.toLowerCase() : 'top_hero',
+    status: b.status ? b.status.toLowerCase() : 'draft',
+    devices: b.devices ? b.devices.map(d => d.toLowerCase()) : ['mobile', 'desktop'],
+    plan: b.plan || 'standard',
+    imageUrl: b.image?.url || '',
+    startAt: b.startAt,
+    endAt: b.endAt,
+    views: b.views || 0,
+    clicks: b.clicks || 0,
+    revenue: b.revenuePaise ? b.revenuePaise / 100 : 0,
+    currency: 'INR',
+    sortOrder: b.sortOrder || 0,
+    createdAt: b.createdAt
+  };
+}
 
 export const bannerService = {
   async listBanners(filters = {}) {
-    await delay(500);
-    let filtered = [...localBanners];
+    const queryParams = {
+      search: filters.search,
+      city: filters.city,
+      section: filters.section,
+      status: filters.status,
+      device: filters.device,
+      page: filters.page,
+      limit: filters.limit
+    };
+    if (queryParams.section && queryParams.section !== 'all') {
+      queryParams.section = queryParams.section.toUpperCase();
+    }
+    if (queryParams.status && queryParams.status !== 'all') {
+      queryParams.status = queryParams.status.toUpperCase();
+    }
+    if (queryParams.device && queryParams.device !== 'all') {
+      queryParams.device = queryParams.device.toUpperCase();
+    }
+
+    const query = buildQueryString(queryParams);
+    const { data } = await apiClient.get(`/api/v1/admin/banners?${query}`);
     
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      filtered = filtered.filter(b => 
-        b.title.toLowerCase().includes(q) || 
-        b.shopName.toLowerCase().includes(q)
-      );
-    }
-    if (filters.city && filters.city !== 'all') {
-      filtered = filtered.filter(b => b.city === filters.city);
-    }
-    if (filters.section && filters.section !== 'all') {
-      filtered = filtered.filter(b => b.section === filters.section);
-    }
-    if (filters.status && filters.status !== 'all') {
-      filtered = filtered.filter(b => b.status === filters.status);
-    }
-    if (filters.device && filters.device !== 'all') {
-      filtered = filtered.filter(b => b.devices.includes(filters.device));
-    }
+    const banners = (data.banners || []).map(normalizeBanner);
+    return { data: banners, total: data.meta?.total || banners.length };
+  },
 
-    filtered.sort((a, b) => a.sortOrder - b.sortOrder);
+  async createBanner(bannerData) {
+    const backendData = { ...bannerData };
+    if (bannerData.section) {
+      backendData.section = bannerData.section.toUpperCase();
+    }
+    if (bannerData.devices) {
+      backendData.devices = bannerData.devices.map(d => d.toUpperCase());
+    }
+    const { data } = await apiClient.post('/api/v1/admin/banners', backendData);
+    return normalizeBanner(data);
+  },
 
-    const total = filtered.length;
-    const page = filters.page || 1;
-    const limit = filters.limit || 10;
-    const start = (page - 1) * limit;
-    const paginated = filtered.slice(start, start + limit);
-
-    return { data: paginated, total };
+  async getBannerDetail(bannerId) {
+    const { data } = await apiClient.get(`/api/v1/admin/banners/${bannerId}`);
+    return normalizeBanner(data);
   },
 
   async updateBanner(bannerId, patch) {
-    await delay(400);
-    const index = localBanners.findIndex(b => b.id === bannerId);
-    if (index === -1) throw new Error('Banner not found');
-    
-    localBanners[index] = { ...localBanners[index], ...patch };
-    return { success: true, banner: localBanners[index] };
+    const backendPatch = { ...patch };
+    if (patch.section) {
+      backendPatch.section = patch.section.toUpperCase();
+    }
+    if (patch.devices) {
+      backendPatch.devices = patch.devices.map(d => d.toUpperCase());
+    }
+    if (patch.status) {
+      backendPatch.status = patch.status.toUpperCase();
+    }
+    const { data } = await apiClient.patch(`/api/v1/admin/banners/${bannerId}`, backendPatch);
+    return { success: true, banner: normalizeBanner(data) };
+  },
+
+  async deleteBanner(bannerId) {
+    await apiClient.delete(`/api/v1/admin/banners/${bannerId}`);
+    return { success: true };
+  },
+
+  async pinBanner(bannerId) {
+    const { data } = await apiClient.post(`/api/v1/admin/banners/${bannerId}/pin`);
+    return normalizeBanner(data);
+  },
+
+  async unpinBanner(bannerId) {
+    const { data } = await apiClient.post(`/api/v1/admin/banners/${bannerId}/unpin`);
+    return normalizeBanner(data);
   },
 
   async getMetrics() {
-    await delay(300);
-    return localMetrics;
+    const { data } = await apiClient.get('/api/v1/admin/banners/metrics');
+    return {
+      ...data,
+      totalRevenue: data.totalRevenue ? data.totalRevenue / 100 : 0
+    };
   },
 
   async getPinnedByCity() {
-    await delay(300);
-    return bannerData.pinRules;
+    const { data } = await apiClient.get('/api/v1/admin/pin-rules');
+    // Filter out rules for banners specifically
+    const bannerRules = (data || []).filter(r => r.targetType === 'BANNER' || !r.targetType);
+    return bannerRules;
   },
 
   async getPerformance() {
-    await delay(300);
-    return bannerData.performance;
+    const { data } = await apiClient.get('/api/v1/admin/banners/performance');
+    return data;
   }
 };

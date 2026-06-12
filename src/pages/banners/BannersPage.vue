@@ -23,6 +23,10 @@
     <div class="two-col-layout">
       <div class="main-column">
         <div class="table-container">
+          <div v-if="errorMessage" class="error-banner">
+            <span>{{ errorMessage }}</span>
+            <button class="btn-close" @click="errorMessage = null">&times;</button>
+          </div>
           <BannerFilters @filter="handleFilter" />
           
           <div class="tabs">
@@ -102,6 +106,7 @@ const guidelines = ref(null);
 const banners = ref([]);
 const loading = ref(false);
 const totalBanners = ref(0);
+const errorMessage = ref(null);
 
 const activeTab = ref('all');
 
@@ -178,11 +183,13 @@ const setActiveTab = (tabId) => {
 };
 
 const handleAction = async ({ action, bannerId }) => {
+  errorMessage.value = null;
+  loading.value = true;
   try {
     if (action === 'pin-banner') {
-      await bannerService.updateBanner(bannerId, { status: 'pinned' });
+      await bannerService.pinBanner(bannerId);
     } else if (action === 'unpin-banner') {
-      await bannerService.updateBanner(bannerId, { status: 'active' });
+      await bannerService.unpinBanner(bannerId);
     } else if (action === 'deactivate-banner') {
       await bannerService.updateBanner(bannerId, { status: 'inactive' });
     }
@@ -191,6 +198,9 @@ const handleAction = async ({ action, bannerId }) => {
     await loadInitialData();
   } catch (err) {
     console.error(`Failed action ${action}`, err);
+    errorMessage.value = err.message || `Failed to perform banner action ${action.replace('-', ' ')}.`;
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -311,5 +321,28 @@ onMounted(() => {
   .side-column {
     order: -1;
   }
+}
+
+.error-banner {
+  background-color: #FEF2F2;
+  border: 1px solid var(--danger-color);
+  color: #B91C1C;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  color: #B91C1C;
+  cursor: pointer;
+  padding: 0;
 }
 </style>

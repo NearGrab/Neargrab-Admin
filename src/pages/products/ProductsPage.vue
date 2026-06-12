@@ -25,6 +25,10 @@
     <div class="two-col-layout">
       <div class="main-column">
         <div class="table-container">
+          <div v-if="errorMessage" class="error-banner">
+            <span>{{ errorMessage }}</span>
+            <button class="btn-close" @click="errorMessage = null">&times;</button>
+          </div>
           <ProductFilters @filter="handleFilter" />
           
           <div class="active-filters" v-if="hasActiveFilters">
@@ -96,6 +100,7 @@ const allProducts = ref([]); // Needed for pinned panel regardless of current pa
 const loading = ref(false);
 const totalProducts = ref(0);
 const selectedProducts = ref([]);
+const errorMessage = ref(null);
 
 const activeTab = ref('all');
 
@@ -202,15 +207,17 @@ const setActiveTab = (tabId) => {
 };
 
 const handleAction = async ({ action, productId }) => {
+  errorMessage.value = null;
+  loading.value = true;
   try {
     if (action === 'approve-product') {
       await productService.updateProduct(productId, { status: 'active' });
     } else if (action === 'flag-product') {
       await productService.updateProduct(productId, { status: 'flagged' });
     } else if (action === 'pin-product') {
-      await productService.updateProduct(productId, { isPinned: true });
+      await productService.pinProduct(productId);
     } else if (action === 'unpin-product') {
-      await productService.updateProduct(productId, { isPinned: false });
+      await productService.unpinProduct(productId);
     } else if (action === 'mark-out-of-stock') {
       await productService.updateProduct(productId, { stockStatus: 'out_of_stock' });
     } else if (action === 'mark-in-stock') {
@@ -221,11 +228,16 @@ const handleAction = async ({ action, productId }) => {
     await loadMetrics();
   } catch (err) {
     console.error(`Failed action ${action}`, err);
+    errorMessage.value = err.message || `Failed to perform ${action.replace('-', ' ')}.`;
+  } finally {
+    loading.value = false;
   }
 };
 
 const handleBulkAction = async (action) => {
   if (selectedProducts.value.length === 0) return;
+  errorMessage.value = null;
+  loading.value = true;
   
   try {
     if (action === 'approve') {
@@ -240,6 +252,9 @@ const handleBulkAction = async (action) => {
     await loadMetrics();
   } catch (err) {
     console.error(`Failed bulk action ${action}`, err);
+    errorMessage.value = err.message || `Failed bulk action ${action}.`;
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -362,5 +377,28 @@ onMounted(() => {
   .side-column {
     order: -1; /* Move panels to top on mobile */
   }
+}
+
+.error-banner {
+  background-color: #FEF2F2;
+  border: 1px solid var(--danger-color);
+  color: #B91C1C;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  color: #B91C1C;
+  cursor: pointer;
+  padding: 0;
 }
 </style>

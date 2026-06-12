@@ -18,6 +18,10 @@
     <UserMetricGrid v-if="metrics" :totals="metrics" />
     
     <div class="table-container">
+      <div v-if="errorMessage" class="error-banner">
+        <span>{{ errorMessage }}</span>
+        <button class="btn-close" @click="errorMessage = null">&times;</button>
+      </div>
       <UserFilters @filter="handleFilter" />
       
       <div class="tabs">
@@ -71,6 +75,7 @@ const users = ref([]);
 const loading = ref(false);
 const totalUsers = ref(0);
 const selectedUsers = ref([]);
+const errorMessage = ref(null);
 
 const activeTab = ref('all');
 const tabs = [
@@ -145,7 +150,8 @@ const setActiveTab = (tabId) => {
   loadUsers();
 };
 
-const handleAction = ({ action, userId }) => {
+const handleAction = async ({ action, userId }) => {
+  errorMessage.value = null;
   if (action === 'suspend-user') {
     confirmModal.title = 'Suspend User';
     confirmModal.message = 'Are you sure you want to suspend this user? They will not be able to log in.';
@@ -161,11 +167,37 @@ const handleAction = ({ action, userId }) => {
     confirmModal.actionData = { action, userId };
     confirmModal.isOpen = true;
   } else if (action === 'verify-user') {
-    // Non-destructive, execute directly
-    userService.updateUser(userId, { verified: true, status: 'active' }).then(loadUsers);
+    loading.value = true;
+    try {
+      const user = users.value.find(u => u.id === userId);
+      await userService.updateUser(userId, { status: 'active' });
+      
+      if (user && user.role === 'shopkeeper') {
+        try {
+          const shopsRes = await userService.listShops({ search: user.username });
+          const shop = shopsRes.shops?.find(s => s.ownerId === userId);
+          if (shop) {
+            await userService.verifyShop(shop.id, {
+              status: 'ACTIVE',
+              verificationStatus: 'VERIFIED',
+              reason: 'Verified by administrator'
+            });
+          }
+        } catch (shopErr) {
+          console.error('Failed to auto-verify shopkeeper shop:', shopErr);
+        }
+      }
+      
+      await loadUsers();
+      await loadMetrics();
+    } catch (err) {
+      console.error('Failed to verify user', err);
+      errorMessage.value = err.message || 'Failed to verify user.';
+    } finally {
+      loading.value = false;
+    }
   } else {
     console.log(`Action ${action} clicked for user ${userId}`);
-    // Other actions would typically open forms/modals
   }
 };
 
@@ -176,6 +208,8 @@ const closeConfirmModal = () => {
 
 const executeAction = async () => {
   const { action, userId } = confirmModal.actionData;
+  errorMessage.value = null;
+  loading.value = true;
   
   try {
     if (action === 'suspend-user') {
@@ -187,7 +221,9 @@ const executeAction = async () => {
     await loadMetrics();
   } catch (err) {
     console.error(`Failed to execute ${action}`, err);
+    errorMessage.value = err.message || `Failed to execute ${action}.`;
   } finally {
+    loading.value = false;
     closeConfirmModal();
   }
 };
@@ -233,5 +269,28 @@ onMounted(() => {
 .tab-btn.active {
   color: var(--primary-color);
   border-bottom-color: var(--primary-color);
+}
+
+.error-banner {
+  background-color: #FEF2F2;
+  border: 1px solid var(--danger-color);
+  color: #B91C1C;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  color: #B91C1C;
+  cursor: pointer;
+  padding: 0;
 }
 </style>
