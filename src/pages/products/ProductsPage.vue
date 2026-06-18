@@ -213,6 +213,10 @@ const handleAction = async ({ action, productId }) => {
     if (action === 'approve-product') {
       await productService.updateProduct(productId, { status: 'active' });
     } else if (action === 'flag-product') {
+      if (!confirm('Are you sure you want to flag this product? It will be hidden from the explore feed and public listings.')) {
+        loading.value = false;
+        return;
+      }
       await productService.updateProduct(productId, { status: 'flagged' });
     } else if (action === 'pin-product') {
       await productService.pinProduct(productId);

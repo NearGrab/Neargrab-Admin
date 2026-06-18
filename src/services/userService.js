@@ -23,7 +23,7 @@ export const userService = {
     const query = buildQueryString(queryParams);
     const { data } = await apiClient.get(`/api/v1/admin/users?${query}`);
     
-    const users = (data.users || []).map(u => ({
+    const users = (Array.isArray(data) ? data : data?.users || []).map(u => ({
       id: u.id,
       name: u.name,
       username: u.username,
@@ -93,6 +93,9 @@ export const userService = {
   async listShops(filters = {}) {
     const query = buildQueryString(filters);
     const { data } = await apiClient.get(`/api/v1/admin/shops?${query}`);
+    if (Array.isArray(data)) {
+      data.shops = data;
+    }
     return data;
   },
 

@@ -25,7 +25,7 @@ export const productService = {
     const query = buildQueryString(queryParams);
     const { data } = await apiClient.get(`/api/v1/admin/products?${query}`);
 
-    const products = (data.products || []).map(p => ({
+    const products = (Array.isArray(data) ? data : data?.products || []).map(p => ({
       id: p.id,
       name: p.name,
       sku: p.sku || '',

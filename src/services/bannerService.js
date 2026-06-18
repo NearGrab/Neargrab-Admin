@@ -57,7 +57,7 @@ export const bannerService = {
     const query = buildQueryString(queryParams);
     const { data } = await apiClient.get(`/api/v1/admin/banners?${query}`);
     
-    const banners = (data.banners || []).map(normalizeBanner);
+    const banners = (Array.isArray(data) ? data : data?.banners || []).map(normalizeBanner);
     return { data: banners, total: data.meta?.total || banners.length };
   },
 

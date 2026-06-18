@@ -166,6 +166,13 @@ const handleAction = async ({ action, userId }) => {
     confirmModal.isDanger = true;
     confirmModal.actionData = { action, userId };
     confirmModal.isOpen = true;
+  } else if (action === 'deactivate-user') {
+    confirmModal.title = 'Deactivate User';
+    confirmModal.message = 'Are you sure you want to deactivate this user? They will not be able to log in or use their account.';
+    confirmModal.confirmText = 'Deactivate';
+    confirmModal.isDanger = true;
+    confirmModal.actionData = { action, userId };
+    confirmModal.isOpen = true;
   } else if (action === 'verify-user') {
     loading.value = true;
     try {
@@ -214,6 +221,8 @@ const executeAction = async () => {
   try {
     if (action === 'suspend-user') {
       await userService.updateUser(userId, { status: 'suspended' });
+    } else if (action === 'deactivate-user') {
+      await userService.updateUser(userId, { status: 'deactivated' });
     } else if (action === 'delete-user') {
       await userService.deleteUser(userId);
     }

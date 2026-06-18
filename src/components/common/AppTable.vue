@@ -119,7 +119,7 @@ const shouldShowPage = (p) => {
   background: white;
   border-radius: 12px;
   border: 1px solid var(--border-color);
-  overflow: hidden;
+  position: relative;
 }
 
 .app-table {
@@ -138,6 +138,14 @@ const shouldShowPage = (p) => {
   white-space: nowrap;
 }
 
+.app-table th:first-child {
+  border-top-left-radius: 11px;
+}
+
+.app-table th:last-child {
+  border-top-right-radius: 11px;
+}
+
 .app-table td {
   padding: 16px;
   font-size: 14px;
@@ -147,6 +155,14 @@ const shouldShowPage = (p) => {
 
 .app-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.app-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 11px;
+}
+
+.app-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 11px;
 }
 
 .app-table tbody tr:hover {
@@ -172,6 +188,8 @@ const shouldShowPage = (p) => {
   padding: 16px;
   border-top: 1px solid var(--border-color);
   background-color: white;
+  border-bottom-left-radius: 11px;
+  border-bottom-right-radius: 11px;
 }
 
 .pagination-info {

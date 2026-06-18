@@ -15,6 +15,9 @@
       </div>
       
       <div class="action-group">
+        <button class="action-item" @click="emitAction('approve-banner')" v-if="banner.status === 'draft'">
+          <CheckCircle class="icon text-success" /> Approve & Activate
+        </button>
         <button class="action-item" @click="emitAction('pin-banner')" v-if="banner.status !== 'pinned'">
           <Pin class="icon" /> Pin Banner
         </button>

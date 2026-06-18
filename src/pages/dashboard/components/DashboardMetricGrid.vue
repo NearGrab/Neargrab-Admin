@@ -2,8 +2,8 @@
   <div class="grid-metrics" v-if="totals">
     <MetricCard 
       title="Total Users" 
-      :value="totals.totalUsers || 125430" 
-      :trend="12.5" 
+      :value="totals.totalUsers" 
+      :trend="totals.totalUsersTrend" 
       iconVariant="primary"
     >
       <template #icon><User class="icon" /></template>
@@ -20,8 +20,8 @@
 
     <MetricCard 
       title="Total Products" 
-      :value="246810" 
-      :trend="14.3" 
+      :value="totals.totalProducts" 
+      :trend="totals.totalProductsTrend" 
       iconVariant="warning"
     >
       <template #icon><Package class="icon" /></template>

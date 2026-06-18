@@ -186,11 +186,17 @@ const handleAction = async ({ action, bannerId }) => {
   errorMessage.value = null;
   loading.value = true;
   try {
-    if (action === 'pin-banner') {
+    if (action === 'approve-banner') {
+      await bannerService.updateBanner(bannerId, { status: 'active' });
+    } else if (action === 'pin-banner') {
       await bannerService.pinBanner(bannerId);
     } else if (action === 'unpin-banner') {
       await bannerService.unpinBanner(bannerId);
     } else if (action === 'deactivate-banner') {
+      if (!confirm('Are you sure you want to deactivate this banner? It will no longer be visible on the customer application.')) {
+        loading.value = false;
+        return;
+      }
       await bannerService.updateBanner(bannerId, { status: 'inactive' });
     }
     
