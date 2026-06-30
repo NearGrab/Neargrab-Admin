@@ -44,11 +44,20 @@
     >
       <template #icon><MapPin class="icon" /></template>
     </MetricCard>
+
+    <MetricCard 
+      title="Unique Visitors" 
+      :value="totals.totalVisitors" 
+      :trend="totals.totalVisitorsTrend" 
+      iconVariant="success"
+    >
+      <template #icon><Eye class="icon" /></template>
+    </MetricCard>
   </div>
 </template>
 
 <script setup>
-import { User, Store, Package, Star, MapPin } from '@lucide/vue';
+import { User, Store, Package, Star, MapPin, Eye } from '@lucide/vue';
 import MetricCard from '../../../components/common/MetricCard.vue';
 
 defineProps({

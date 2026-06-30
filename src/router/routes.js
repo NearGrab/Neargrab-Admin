@@ -19,5 +19,10 @@ export const routes = [
     path: '/banners', 
     name: 'banners',
     component: () => import('../pages/banners/BannersPage.vue')
+  },
+  { 
+    path: '/visits', 
+    name: 'visits',
+    component: () => import('../pages/visits/VisitsPage.vue')
   }
 ];

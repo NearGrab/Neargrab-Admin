@@ -37,10 +37,10 @@
         <span class="nav-label" v-if="!uiStore.isSidebarCollapsed">Reviews</span>
       </a>
 
-      <a href="#" class="nav-item inactive" @click.prevent>
-        <Receipt class="nav-icon" />
-        <span class="nav-label" v-if="!uiStore.isSidebarCollapsed">Orders / Leads</span>
-      </a>
+      <router-link to="/visits" class="nav-item">
+        <Eye class="nav-icon" />
+        <span class="nav-label" v-if="!uiStore.isSidebarCollapsed">Page Visits</span>
+      </router-link>
 
       <div class="nav-section" :class="{ 'open': isPromoOpen }">
         <div class="nav-item has-children" @click="isPromoOpen = !isPromoOpen">
@@ -116,7 +116,7 @@ import {
   Home, Users, Store, Package, Star, Receipt, 
   Megaphone, BarChart2, Banknote, AlertCircle, 
   MessageSquare, Settings, ClipboardList, MapPin,
-  ChevronRight, ChevronDown
+  ChevronRight, ChevronDown, Eye
 } from '@lucide/vue';
 
 const sessionStore = useAdminSessionStore();
